@@ -52,7 +52,7 @@ class MoviesController < ApplicationController
     # session.clear     #first attemp
     @all_ratings = Movie.all_ratings
     
-    @selected_ratings = []
+    @selected_ratings = {}
     @redirect = false
     ratings = params[:ratings]
     if !(ratings.nil?)
