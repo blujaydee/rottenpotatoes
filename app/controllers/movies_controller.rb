@@ -10,24 +10,44 @@ class MoviesController < ApplicationController
   end
 
   def index
-
+    # session.clear
     @selected_ratings = []
-    @by=params[:by]
+    @by = params[:by]
+    @redirect = false
+    
+    if params[:by].nil? && !session[:by].nil?
+      @by = session[:by]
+      # @redirect = true
+    elsif params[:by] != session[:by]
+      session[:by] = params[:by]
+      # @by = params[:by]
+      # @redirect = true
+    end #end for sorting
 
-    
-    
-    if !params[:ratings].nil?
+    if params[:ratings].nil? && !session[:ratings].nil?
+      @selected_ratings = session[:ratings]
+      # @redirect = true
+    elsif params[:ratings] != session[:ratings]
+      session[:ratings] = params[:ratings]
+      # @selected_ratings = params[:ratings]
+      # @redirect = true
+    elsif !params[:ratings].nil? #
       params[:ratings].each_key do |key|
         @selected_ratings << key
       end
-    else
+      session[:ratings] = @selected_ratings
+    else #first time loading
       @selected_ratings = @all_ratings
+    end #end for ratings
+
+    if @redirect == true #redirect with saved info in sesh
+      flash.keep
+      # flash.now[:notice] = "#{session[:ratings]}"
+      redirect_to movies_path(:rating => session[:ratings], :order => session[:by]) and return
     end
-    
+
     @movies = Movie.find(:all, :conditions => {:rating => @selected_ratings}, :order => @by)
 
-    flash.keep
-    session[:sort]
   end
  
   def new
